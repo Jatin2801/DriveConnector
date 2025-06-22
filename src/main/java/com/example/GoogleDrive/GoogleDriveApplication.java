@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GoogleDriveApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GoogleDriveApplication.class, args);
+			SpringApplication.run(GoogleDriveApplication.class, args);
 	}
 
 }
