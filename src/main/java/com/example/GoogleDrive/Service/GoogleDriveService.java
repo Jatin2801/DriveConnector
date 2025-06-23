@@ -1,13 +1,18 @@
 package com.example.GoogleDrive.Service;
 
-import org.springframework.stereotype.Service;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.api.services.drive.Drive;
-import org.springframework.core.io.ClassPathResource;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
+import com.google.api.client.http.FileContent;
+
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
+
 import java.io.InputStream;
 import java.util.*;
 
@@ -31,5 +36,17 @@ private final String sharedFolderId = "https://drive.google.com/drive/u/2/folder
         ).setApplicationName("Spring Drive API")
                 .build();
     }
+
+    public String uploadFile(MultipartFile file) throws Exception {
+        File metadata = new File(); // yeh drive.model wala hai
+        metadata.setName(file.getOriginalFilename());
+        metadata.setParents(Collections.singletonList(sharedFolderId)); // to store in my shared folder
+        java.io.File tempFile = java.io.File.createTempFile("upload-",file.getOriginalFilename());
+        file.transferTo(tempFile); // copy the ori. file in temp
+        FileContent content = new FileContent(file.getContentType(),tempFile);
+        File uploaded = drive.files().create(metadata,content).setFields("id").execute();
+        return uploaded.getId();
+    }
+
 }
 
