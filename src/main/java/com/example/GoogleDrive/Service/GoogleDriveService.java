@@ -1,7 +1,7 @@
 package com.example.GoogleDrive.Service;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.model.FileList;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.api.services.drive.Drive;
@@ -33,7 +33,7 @@ private final String sharedFolderId = "https://drive.google.com/drive/u/2/folder
 
         this.drive = new Drive.Builder( // create client
                 GoogleNetHttpTransport.newTrustedTransport(),
-                JacksonFactory.getDefaultInstance(),
+                GsonFactory.getDefaultInstance(),
                 new HttpCredentialsAdapter(credentials)
         ).setApplicationName("Spring Drive API")
                 .build();
