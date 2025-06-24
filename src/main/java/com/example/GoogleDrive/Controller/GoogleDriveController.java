@@ -2,13 +2,14 @@ package com.example.GoogleDrive.Controller;
 
 import com.example.GoogleDrive.Service.GoogleDriveService;
 
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.*;
+
+import java.io.InputStream;
+import java.util.*;
 
 
 @RestController
@@ -32,4 +33,51 @@ private final GoogleDriveService googleDriveSer;
         }
     }
 
+    @GetMapping("/download/{fileId}")
+    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String fileId) {
+        try {
+            InputStream inputStream = googleDriveSer.downloadFile(fileId);
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileId)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null);
+        }
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<List<Map<String, Object>>> listFiles() {
+        try {
+            List<Map<String, Object>> files = googleDriveSer.listFiles();
+            return ResponseEntity.ok(files);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @DeleteMapping("/delete/{fileId}")
+    public ResponseEntity<String> deleteFile(@PathVariable String fileId) {
+        try {
+            googleDriveSer.deleteFile(fileId);
+            return ResponseEntity.ok(" File deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(" Delete failed: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/storage")
+    public ResponseEntity<String> getStorageInfo() {
+        try {
+            String storageInfo = googleDriveSer.getStorageInfo();
+            return ResponseEntity.ok(storageInfo);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(" Failed to get storage info: " + e.getMessage());
+        }
+    }
 }
